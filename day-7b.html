@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Day 7b</title>
+  <!-- Script tags including React -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.3.1/react.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.3.1/react-dom.min.js"></script>
+  <script src="https://npmcdn.com/babel-core@5.8.38/browser.min.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <style>
+    .searchInput {
+      display: none;
+    }
+    .active {
+      display: inline;
+    }
+    .searchIcon {
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+  <script type="text/babel">
+      class App extends React.Component {
+          constructor(props) {
+              super(props);
+              this.state = {refreshing: false};
+          }
+
+          refresh() {
+              console.log("Starting refresh");
+              this.setState({refreshing: true});
+          }
+
+          onComponentRefresh() {
+              console.log("Refresh complete");
+              this.setState({refreshing: false});
+          }
+
+          render() {
+              const {refreshing} = this.state;
+              return (
+                  <div className="notificationsFrame">
+                    <div className="panel">
+                      <Content
+                          requestRefresh={refreshing}
+                          onComponentRefresh={this.onComponentRefresh.bind(this)}
+                      />
+                    </div>
+                    <div className="footer">
+                      <button name="Refresh"
+                        onClick={this.refresh.bind(this)}
+                      >
+                        Refresh
+                      </button>
+                    </div>
+                  </div>
+              );
+          }
+      }
+
+      class Content extends React.Component {
+          constructor(props) {
+              super(props);
+              this.state = {
+                  loading: false,
+                  result: {}
+              }
+          }
+
+          componentWillReceiveProps(nextProps) {
+              console.log("Got props");
+              if (nextProps.requestRefresh !== this.props.requestRefresh
+                    && nextProps.requestRefresh) {
+                  this.setState({loading: true}, this.updateData);
+                  console.log("Props changed")
+              }
+          }
+
+          updateData() {
+              let self = this;
+              axios.get("http://www.fakeresponse.com/api/?sleep=4&data=hello_world")
+                  .then(function(response) {
+                      self.setState({
+                          result: response.data,
+                          loading: false
+                      }, self.props.onComponentRefresh);
+                      console.log(response.data)
+                  });
+          }
+          render() {
+              const {loading, result} = this.state;
+              return (
+                  <div className="content">
+                      {loading && <strong>LOADING</strong>}
+                      Result: [{result.data}]
+                  </div>
+              )
+          }
+      }
+      var mount = document.querySelector("#app");
+      ReactDOM.render(<App />, mount);
+  </script>
+</div>
+</body>
