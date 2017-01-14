@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Day 10 b</title>
+  <!-- Script tags including React -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.3.1/react.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.3.1/react-dom.min.js"></script>
+  <script src="https://npmcdn.com/babel-core@5.8.38/browser.min.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <style>
+    .search {
+      display: none
+    }
+
+    .active {
+      display: inline
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+  <script type="text/babel">
+    class App extends React.Component {
+
+        constructor(props) {
+            super(props);
+            this.state = {
+                searchString: '',
+                posts: []
+            };
+        }
+
+        componentWillMount() {
+            this.update();
+        }
+
+        update() {
+            let self = this;
+            axios.get("https://jsonplaceholder.typicode.com/posts")
+                .then(function (data) {
+                    let posts = data.data;
+                    let search = self.state.searchString;
+                    if (search !== "") {
+                        posts = posts.filter(p => p.body.includes(search))
+                    }
+                    self.setState({posts: posts})
+                });
+        }
+
+        onSearch(text) {
+            this.setState({searchString: text});
+            this.update()
+        }
+
+        render() {
+            return (
+                <div id="container">
+                  <Header onSearch={this.onSearch.bind(this)}/>
+                  <Content posts={this.state.posts}/>
+                </div>
+            );
+        }
+    }
+
+    class Header extends React.Component {
+        constructor(props) {
+            super(props);
+            this.state = {
+                searchVisible: false
+            }
+        }
+
+        showSearch() {
+            this.setState({searchVisible: ! this.state.searchVisible})
+        }
+
+        onSubmit(text) {
+            this.props.onSearch(text);
+        }
+
+        render() {
+            return (
+                <div>
+                  <span>Day 10b</span>
+                  <SearchForm
+                      onSubmit={this.onSubmit.bind(this)}
+                      searchVisible={this.state.searchVisible}/>
+                  <div onClick={this.showSearch.bind(this)}
+                      className="fa fa-search searchIcon"></div>
+                </div>
+            )
+        }
+    }
+
+    Header.propTypes = {
+        onSearch: React.PropTypes.func
+    };
+
+    class SearchForm extends React.Component {
+        constructor(props) {
+            super(props);
+
+            this.state = {
+                searchText: ""
+            }
+        }
+
+        updateSearchInput(event) {
+          this.setState({searchText: event.target.value});
+        }
+
+        submitForm(event) {
+            this.props.onSubmit(this.state.searchText);
+            event.preventDefault();
+        }
+
+        render() {
+            let classNames = ["search"];
+
+            if (this.props.searchVisible) {
+                classNames.push("active");
+            }
+            return (
+                <form onSubmit={this.submitForm.bind(this)}>
+                  <input type="search"
+                      className={classNames.join(" ")}
+                      value={this.state.searchText}
+                      onChange={this.updateSearchInput.bind(this)}
+                      placeholder="Search..."/>
+                </form>
+            )
+
+        }
+    }
+
+    SearchForm.propTypes = {
+        searchVisible: React.PropTypes.bool,
+        onSubmit: React.PropTypes.func.isRequired
+    };
+
+    SearchForm.defaultProps = {
+        searchVisible: false,
+        onSubmit: () => {}
+    };
+
+    class Content extends React.Component {
+        render() {
+            return (
+                <div>
+                    {this.props.posts.map(i => (<Item item={i}/>))}
+                </div>
+            )
+        }
+    }
+
+    class Item extends React.Component {
+        render() {
+          const {item} = this.props;
+          return (
+            <div>
+              <em>{item.id}</em> - <strong>{item.title}</strong>
+              <p>{item.body}</p>
+            </div>
+          )
+        }
+    }
+
+    var mount = document.querySelector("#app");
+    ReactDOM.render(<App/>, mount);
+  </script>
+</div>
+</body>
