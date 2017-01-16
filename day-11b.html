@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Day 11b</title>
+  <!-- Script tags including React -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.3.1/react.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.3.1/react-dom.min.js"></script>
+  <script src="https://npmcdn.com/babel-core@5.8.38/browser.min.js"></script>
+</head>
+<body>
+<div id="app">
+  <script type="text/babel">
+    class Clock extends React.Component {
+        constructor(props) {
+            super(props);
+            const currentTime = new Date();
+            this.state = {
+                hours: currentTime.getHours(),
+                minutes: currentTime.getMinutes(),
+                seconds: currentTime.getSeconds(),
+                ampm: currentTime.getHours() >= 12 ? "pm" : "am"
+            };
+            this.setTimer();
+        }
+
+        setTimer() {
+            setTimeout(this.updateClock.bind(this), 1000);
+        }
+
+        updateClock() {
+            const currentTime = new Date();
+            this.setState({
+                hours: currentTime.getHours(),
+                minutes: currentTime.getMinutes(),
+                seconds: currentTime.getSeconds(),
+                ampm: currentTime.getHours() >= 12 ? "pm" : "am"
+            }, this.setTimer);
+        }
+
+        render() {
+            const {hours, minutes, seconds, ampm} = this.state;
+            return (
+                <div className="clock">
+                  <Formatter format="H:M:S" state={this.state}/>
+                </div>
+            )
+        }
+    }
+
+    // only use "hours" field of input. same as "const {hours} = arguments" where
+    // arguments is a dictionary of all passed in parameters
+    const Hour = ({hours}) => {
+        return (<span>{hours}</span>);
+    };
+
+    const Minute = ({minutes}) => {
+        return (<span>{minutes < 10 && '0'}{minutes}</span>);
+    };
+
+    const Second = ({seconds}) => {
+        return (<span>{seconds < 10 && '0'}{seconds}</span>);
+    };
+
+    const Separator = ({}) => (<span>:</span>);
+
+    const Formatter = (props) => {
+        let children = props.format.split("").map((e, idx) => {
+            if (e === 'H') {
+                // {...props.state} unpacks all fields of "props.state" obj
+                return <Hour key={idx} {...props.state} />;
+            } else if (e === 'M') {
+                return <Minute key={idx} {...props.state} />;
+            } else if (e === 'S') {
+                return <Second key={idx} {...props.state} />;
+            } else {
+                return <Separator key={idx} />;
+            }
+        });
+        return <span>{children}</span>;
+    };
+
+
+      var mount = document.querySelector("#app");
+      ReactDOM.render(<Clock />, mount);
+  </script>
+</div>
+</body>
