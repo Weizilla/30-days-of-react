@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Day 11a</title>
+  <!-- Script tags including React -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.3.1/react.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.3.1/react-dom.min.js"></script>
+  <script src="https://npmcdn.com/babel-core@5.8.38/browser.min.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+<div id="app">
+  <script type="text/babel">
+      const HelloWorld = () => (<div> Hello World</div>);
+      const WithProps = (props) => {
+          const {text} = props;
+          return (<div>{text}</div>);
+      };
+      var mount = document.querySelector("#app");
+      ReactDOM.render(<HelloWorld/>, mount);
+      ReactDOM.render(<WithProps text="with props!"/>,
+          document.querySelector("#app2"));
+  </script>
+</div>
+<div id="app2"></div>
+</body>
